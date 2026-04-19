@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="IELTS 암기장">
+  <meta name="theme-color" content="#f7f3ec">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <title>IELTS 암기장</title>
+  <style>
+    :root {
+      --paper: #f7f3ec; --paper-warm: #f2ecdf; --ink: #1a2420;
+      --ink-soft: #4a544e; --ink-mute: #8a9088; --line: #dcd3c1;
+      --line-soft: #ebe3d2; --ember: #c9632f; --ember-soft: #e8a97c;
+      --sage: #5f7a5a; --sage-soft: #c8d4c3; --brick: #b5534a;
+      --brick-soft: #e8c8c4; --mustard: #c5a242; --mustard-soft: #ebdfb8;
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-ui: 'Geist', -apple-system, system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+      --radius: 8px; --radius-lg: 14px;
+      --safe-top: env(safe-area-inset-top); --safe-bot: env(safe-area-inset-bottom);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow: hidden; }
+    body {
+      background: var(--paper); color: var(--ink); font-family: var(--font-ui);
+      font-size: 16px; line-height: 1.5; -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 20% 0%, rgba(201,99,47,.04), transparent 60%),
+        radial-gradient(ellipse 70% 50% at 100% 100%, rgba(95,122,90,.05), transparent 60%);
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 100;
+      opacity: .35; mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.14 0 0 0 0 0.12 0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.2'/></svg>");
+    }
+    #app { position: fixed; inset: 0; display: flex; flex-direction: column; padding-top: var(--safe-top); }
+    .view { flex: 1; display: flex; flex-direction: column; overflow: hidden; animation: fadeIn .25s ease; }
+    @keyframes fadeIn { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+    .header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 14px 20px 10px; border-bottom: 1px solid var(--line-soft);
+      background: var(--paper); z-index: 10; flex-shrink: 0;
+    }
+    .header-title { font-family: var(--font-display); font-size: 20px; font-weight: 500; }
+    .icon-btn {
+      background: transparent; border: none; width: 36px; height: 36px;
+      border-radius: 50%; display: grid; place-items: center; cursor: pointer;
+      color: var(--ink); transition: background .15s;
+    }
+    .icon-btn:active { background: var(--line-soft); }
+    .icon-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+    .mode-bar {
+      display: flex; align-items: center; gap: 8px; padding: 8px 20px;
+      background: var(--paper); border-bottom: 1px solid var(--line-soft); flex-shrink: 0;
+    }
+    .mode-pill {
+      font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+      padding: 5px 12px; border-radius: 100px; border: 1px solid var(--line);
+      background: transparent; color: var(--ink-mute); cursor: pointer; transition: all .15s;
+    }
+    .mode-pill.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .mode-pill.key.active { background: var(--ember); border-color: var(--ember); color: white; }
+    .mode-spacer { flex: 1; }
+    .hint-btn {
+      font-family: var(--font-ui); font-size: 12px; font-weight: 600;
+      padding: 5px 12px; border-radius: 100px; border: 1px solid var(--line);
+      background: transparent; color: var(--ink-soft); cursor: pointer;
+      display: flex; align-items: center; gap: 4px; transition: all .15s;
+    }
+    .hint-btn.active { background: var(--mustard-soft); border-color: var(--mustard); }
+    .scroll { flex: 1; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+    .home-hero { padding: 32px 24px 20px; }
+    .home-greeting { font-family: var(--font-display); font-weight: 400; font-size: 34px; line-height: 1.1; letter-spacing: -.02em; }
+    .home-greeting em { font-style: italic; color: var(--ember); }
+    .home-meta { margin-top: 14px; font-size: 13px; color: var(--ink-soft); display: flex; align-items: center; gap: 8px; }
+    .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ember); display: inline-block; }
+    .section-label { padding: 0 24px; margin-top: 28px; margin-bottom: 10px; font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-mute); }
+    .essay-list { padding: 0 16px 90px; }
+    .essay-card {
+      background: var(--paper-warm); border: 1px solid var(--line-soft);
+      border-radius: var(--radius-lg); padding: 16px 18px; margin-bottom: 10px;
+      cursor: pointer; transition: transform .1s; position: relative; overflow: hidden;
+    }
+    .essay-card:active { transform: scale(.99); }
+    .essay-card.due::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--ember); }
+    .essay-title { font-family: var(--font-display); font-weight: 500; font-size: 17px; line-height: 1.3; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .essay-meta { font-size: 12px; color: var(--ink-mute); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .level { font-family: var(--font-mono); font-size: 11px; font-weight: 500; color: var(--ember); padding: 2px 7px; background: rgba(201,99,47,.08); border-radius: 3px; }
+    .type-tag { font-size: 11px; padding: 2px 7px; background: var(--line-soft); border-radius: 3px; color: var(--ink-mute); }
+    .due-pill { color: var(--ember); font-weight: 500; }
+    .empty-state { padding: 60px 32px; text-align: center; color: var(--ink-mute); }
+    .empty-state .em-title { font-family: var(--font-display); font-size: 20px; font-style: italic; color: var(--ink-soft); margin-bottom: 8px; }
+    .fab {
+      position: fixed; right: 20px; bottom: calc(24px + var(--safe-bot));
+      width: 56px; height: 56px; border-radius: 50%; background: var(--ink); color: var(--paper);
+      border: none; font-size: 28px; box-shadow: 0 6px 24px rgba(26,36,32,.25);
+      cursor: pointer; display: grid; place-items: center; z-index: 20; transition: transform .15s;
+    }
+    .fab:active { transform: scale(.92); }
+    .form { padding: 20px 24px 24px; display: flex; flex-direction: column; gap: 18px; }
+    .field-label { font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px; }
+    .field-hint { font-size: 12px; color: var(--ink-mute); margin-top: 6px; line-height: 1.5; }
+    input[type="text"], textarea {
+      width: 100%; background: var(--paper-warm); border: 1px solid var(--line);
+      border-radius: var(--radius); padding: 12px 14px; font-family: var(--font-ui);
+      font-size: 16px; color: var(--ink); line-height: 1.5; transition: border-color .15s;
+      -webkit-appearance: none; appearance: none;
+    }
+    textarea { resize: vertical; min-height: 240px; font-family: var(--font-display); line-height: 1.7; }
+    input:focus, textarea:focus { outline: none; border-color: var(--ember); }
+    .type-picker { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+    .type-opt {
+      background: var(--paper-warm); border: 1px solid var(--line); border-radius: var(--radius);
+      padding: 10px 12px; font-size: 13px; text-align: center; cursor: pointer;
+      transition: all .15s; color: var(--ink-soft); font-family: var(--font-ui);
+    }
+    .type-opt.active { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+    .bottom-bar {
+      flex-shrink: 0; padding: 12px 20px calc(12px + var(--safe-bot));
+      background: var(--paper); border-top: 1px solid var(--line-soft); display: flex; gap: 10px;
+    }
+    .btn {
+      flex: 1; padding: 15px 20px; border: none; border-radius: var(--radius);
+      font-family: var(--font-ui); font-size: 15px; font-weight: 600; cursor: pointer;
+      transition: transform .1s; -webkit-appearance: none;
+    }
+    .btn:active { transform: scale(.98); }
+    .btn-primary { background: var(--ink); color: var(--paper); }
+    .btn-secondary { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+    .btn-danger { background: transparent; color: var(--brick); border: 1px solid var(--brick-soft); }
+    .btn-accent { background: var(--ember); color: white; border: none; }
+    .practice-bar {
+      padding: 12px 20px; background: var(--paper); border-bottom: 1px solid var(--line-soft);
+      display: flex; justify-content: space-between; align-items: center; flex-shrink: 0;
+    }
+    .p-title { font-family: var(--font-display); font-size: 15px; font-weight: 500; font-style: italic; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 12px; }
+    .progress-indicator { font-family: var(--font-mono); font-size: 11px; color: var(--ember); background: rgba(201,99,47,.08); padding: 3px 8px; border-radius: 3px; flex-shrink: 0; }
+    .essay-body { padding: 28px 24px 24px; font-family: var(--font-display); font-size: 18px; line-height: 2.1; word-wrap: break-word; }
+    .essay-body p { margin-bottom: 1.2em; }
+    .essay-body p:last-child { margin-bottom: 0; padding-bottom: 24px; }
+    .blank {
+      display: inline-block; vertical-align: baseline; min-width: 3.5em;
+      background: transparent; border: none; border-bottom: 1.5px dotted var(--ember);
+      font-family: var(--font-mono); font-size: 16px; line-height: 1.3;
+      padding: 0 4px; margin: 0 1px; color: var(--ember); text-align: center;
+      font-weight: 500; -webkit-appearance: none; appearance: none; border-radius: 0;
+      transition: background .15s;
+    }
+    .blank:focus { outline: none; background: rgba(201,99,47,.08); border-bottom-style: solid; border-bottom-width: 2px; }
+    .blank.hinted { border-bottom-color: var(--mustard); color: var(--mustard); border-bottom-style: dashed; }
+    .blank.correct { color: var(--sage); border-bottom-color: var(--sage); background: rgba(95,122,90,.08); }
+    .blank.partial { color: var(--mustard); border-bottom-color: var(--mustard); background: rgba(197,162,66,.1); }
+    .blank.wrong { color: var(--brick); border-bottom-color: var(--brick); background: rgba(181,83,74,.08); text-decoration: line-through; }
+    .correction { display: inline-block; margin-left: 3px; font-family: var(--font-mono); font-size: 14px; color: var(--sage); font-weight: 500; padding: 1px 4px; background: var(--sage-soft); border-radius: 3px; vertical-align: baseline; }
+    .results-wrap { padding: 36px 24px 32px; text-align: center; }
+    .score-big { font-family: var(--font-display); font-size: 96px; line-height: 1; font-weight: 400; letter-spacing: -.04em; }
+    .score-percent { font-size: 38px; vertical-align: top; margin-left: 4px; color: var(--ink-mute); }
+    .score-label { font-family: var(--font-display); font-style: italic; font-size: 20px; color: var(--ink-soft); margin-top: 8px; }
+    .score-bar { display: flex; justify-content: center; gap: 16px; margin-top: 28px; }
+    .score-chip { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 16px; border-radius: var(--radius); background: var(--paper-warm); min-width: 72px; }
+    .score-chip-num { font-family: var(--font-display); font-size: 24px; font-weight: 500; }
+    .score-chip-label { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-mute); }
+    .score-chip.correct .score-chip-num { color: var(--sage); }
+    .score-chip.partial .score-chip-num { color: var(--mustard); }
+    .score-chip.wrong .score-chip-num { color: var(--brick); }
+    .progress-panel { margin: 28px 20px 0; padding: 20px; background: var(--paper-warm); border: 1px solid var(--line-soft); border-radius: var(--radius-lg); }
+    .progress-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line-soft); }
+    .progress-row:last-child { border-bottom: none; }
+    .pr-label { font-size: 13px; color: var(--ink-soft); }
+    .pr-value { font-family: var(--font-mono); font-size: 14px; font-weight: 500; }
+    .level-change { color: var(--sage); font-weight: 600; }
+    .level-change.down { color: var(--brick); }
+    .level-change.same { color: var(--ink-mute); }
+    .results-actions { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(26,36,32,.4); z-index: 50; display: grid; place-items: end center; animation: fadeIn .2s ease; -webkit-tap-highlight-color: transparent; }
+    .modal-sheet { background: var(--paper); border-radius: var(--radius-lg) var(--radius-lg) 0 0; width: 100%; max-width: 560px; padding: 24px 20px calc(24px + var(--safe-bot)); animation: slideUp .25s ease; position: relative; z-index: 51; }
+    @keyframes slideUp { from { transform: translateY(100%); } to { transform: none; } }
+    .modal-title { font-family: var(--font-display); font-size: 20px; margin-bottom: 8px; font-weight: 500; }
+    .modal-body { font-size: 14px; color: var(--ink-soft); margin-bottom: 20px; line-height: 1.6; }
+    .modal-actions { display: flex; gap: 10px; }
+    .toast { position: fixed; top: calc(20px + var(--safe-top)); left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--paper); padding: 10px 18px; border-radius: 100px; font-size: 13px; z-index: 200; animation: toastIn .3s ease; box-shadow: 0 4px 20px rgba(26,36,32,.2); }
+    @keyframes toastIn { from { opacity:0; transform:translateX(-50%) translateY(-10px); } to { opacity:1; transform:translateX(-50%); } }
+    @media (min-width: 640px) { #app { max-width: 560px; margin: 0 auto; box-shadow: 0 0 40px rgba(26,36,32,.08); } }
+  </style>
+</head>
+<body>
+<main id="app"></main>
+<script>
+const STORAGE_KEY = 'ielts-memo-v1';
+const defaultState = { essays: [], progress: {} };
+function loadState() {
+  try { const r = localStorage.getItem(STORAGE_KEY); return r ? { ...defaultState, ...JSON.parse(r) } : { ...defaultState }; }
+  catch(e) { return { ...defaultState }; }
+}
+function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} }
+let state = loadState();
+function newProgress() { return { level:1, ease:2.5, interval:0, reps:0, nextReview:Date.now(), lastScore:null, lastReview:null }; }
+
+const SEED_VERSION = 2;
+const DEFAULT_ESSAYS = [
+  { id:'e-op1', title:'Compete or cooperate', type:'opinion', created: Date.now()-100,
+    text:`In recent decades, the question of whether children should be taught to compete or to cooperate has become a subject of considerable debate. While some argue that competitive skills prepare young people for the demands of the modern world, I firmly believe that teaching children to collaborate is far more beneficial for both individual development and society as a whole.
+
+The primary reason for this view is that cooperation has been the most fundamental driver of human progress throughout history. There is virtually no field — whether science, business, or the arts — that does not rely on individuals working together toward a shared goal. It is widely acknowledged that the greatest achievements of mankind, from space exploration to medical breakthroughs, were made possible not by solitary effort but by collective endeavour. What is particularly striking is that this principle holds true even in the age of artificial intelligence. The ability to collaborate effectively with others is not diminished by technological advancement; on the contrary, knowing how to leverage AI tools productively requires precisely the same skills as human cooperation — clear communication, mutual understanding, and shared purpose.
+
+Furthermore, teaching cooperation equips children with skills that directly enhance their performance and wellbeing. When people work together, they produce outcomes that no individual could achieve alone. Collaboration fosters creativity, as exposure to diverse perspectives enables more innovative problem-solving. Conversely, children who lack cooperation skills tend to perceive others' opinions as threats rather than contributions, creating conflict that undermines shared goals. For instance, research in educational psychology consistently shows that students trained in cooperative learning environments demonstrate higher academic achievement and greater emotional resilience than those raised in purely competitive settings.
+
+Admittedly, competition can serve a motivating function, pushing children to work harder and strive for excellence. However, this argument overlooks the fact that excessive emphasis on competition can breed anxiety, undermine self-esteem, and discourage children from seeking help when they need it. A child who believes that asking for assistance signals weakness is ill-prepared for the realities of adult professional life.
+
+In conclusion, while competition has its place, I maintain that cooperation is the more essential skill to cultivate in children. No one can achieve everything alone, and teaching young people to collaborate effectively — to communicate clearly, tolerate difference, and work toward common goals — not only benefits society at large but also lays the foundation for each individual's long-term happiness and success.` },
+  { id:'e-t2-1', title:'Task 2 – Compete or cooperate', type:'task2', created: Date.now()-90,
+    text:`In recent decades, the question of whether children should be taught to compete or to cooperate has become a subject of considerable debate. While some argue that competitive skills prepare young people for the demands of the modern world, I firmly believe that teaching children to collaborate is far more beneficial for both individual development and society as a whole.
+
+The primary reason for this view is that cooperation has been the most fundamental driver of human progress throughout history. There is virtually no field — whether science, business, or the arts — that does not rely on individuals working together toward a shared goal. It is widely acknowledged that the greatest achievements of mankind, from space exploration to medical breakthroughs, were made possible not by solitary effort but by collective endeavour. What is particularly striking is that this principle holds true even in the age of artificial intelligence. The ability to collaborate effectively with others is not diminished by technological advancement; on the contrary, knowing how to leverage AI tools productively requires precisely the same skills as human cooperation — clear communication, mutual understanding, and shared purpose.
+
+Furthermore, teaching cooperation equips children with skills that directly enhance their performance and wellbeing. When people work together, they produce outcomes that no individual could achieve alone. Collaboration fosters creativity, as exposure to diverse perspectives enables more innovative problem-solving. Conversely, children who lack cooperation skills tend to perceive others' opinions as threats rather than contributions, creating conflict that undermines shared goals. For instance, research in educational psychology consistently shows that students trained in cooperative learning environments demonstrate higher academic achievement and greater emotional resilience than those raised in purely competitive settings.
+
+Admittedly, competition can serve a motivating function, pushing children to work harder and strive for excellence. However, this argument overlooks the fact that excessive emphasis on competition can breed anxiety, undermine self-esteem, and discourage children from seeking help when they need it. A child who believes that asking for assistance signals weakness is ill-prepared for the realities of adult professional life.
+
+In conclusion, while competition has its place, I maintain that cooperation is the more essential skill to cultivate in children. No one can achieve everything alone, and teaching young people to collaborate effectively — to communicate clearly, tolerate difference, and work toward common goals — not only benefits society at large but also lays the foundation for each individual's long-term happiness and success.` },
+  { id:'e-t1-1', title:'Task 1 – UK Energy Consumption', type:'task1', created: Date.now()-80,
+    text:`The line graph illustrates changes in household energy consumption in the United Kingdom between 1970 and 2010, measured in millions of tonnes of oil equivalent.
+
+Overall, the most striking trend was the dramatic decline of coal and the corresponding surge in natural gas usage over the forty-year period. Total energy consumption rose considerably, driven primarily by growth in gas and electricity.
+
+In 1970, coal dominated household energy use at approximately 50 million tonnes. This figure plummeted sharply and consistently throughout the following decades, bottoming out at just under 5 million tonnes by 2010 — a tenfold reduction. By contrast, natural gas consumption surged from roughly 25 million tonnes in 1970, accelerating steeply during the 1980s and 1990s, and peaking at around 80 million tonnes in 2005 before edging down marginally to 75 million tonnes by 2010.
+
+Electricity usage grew steadily and reliably over the entire period, rising from approximately 15 million tonnes to 30 million tonnes. Oil consumption, meanwhile, fluctuated considerably, climbing to a peak of around 35 million tonnes in 1985 before retreating to roughly 20 million tonnes by the end of the period.` },
+  { id:'e-t1-2', title:'Task 1 – Tourist Arrivals by Region', type:'task1', created: Date.now()-60,
+    text:`The bar chart compares international tourist arrivals across six global regions in 2000 and 2015, expressed in millions of visitors.
+
+Overall, tourist arrivals increased in every region over the fifteen-year period. Europe consistently attracted the greatest volume of visitors, while the Asia-Pacific region recorded the most impressive proportional growth.
+
+In 2000, Europe dominated with approximately 390 million arrivals. By 2015, this figure had risen substantially to around 600 million, consolidating its position as the world's premier destination. The Americas ranked second in both years, receiving roughly 130 million visitors in 2000 and approximately 190 million in 2015 — a moderate but steady increase.
+
+The Asia-Pacific region registered the most remarkable proportional gain, nearly tripling from around 110 million arrivals to just over 280 million. The Middle East and Africa, while considerably smaller in absolute terms, also experienced notable growth, with both regions roughly doubling their figures. South Asia remained the least visited region throughout, despite a modest rise from 6 million to 19 million arrivals over the period.` },
+  { id:'e-t1-3', title:'Task 1 – Household Water Usage', type:'task1', created: Date.now()-40,
+    text:`The two pie charts illustrate the distribution of household water consumption in a particular country in 1990 and 2020.
+
+Overall, the pattern of domestic water use shifted considerably over the three decades. The most pronounced change was a marked decline in outdoor use, while toilet flushing emerged as the single largest category by 2020.
+
+In 1990, outdoor activities — encompassing garden irrigation and car washing — constituted the largest proportion of household water use at 35 percent. This share fell dramatically to just 15 percent by 2020, representing the most substantial shift across all categories. Toilet flushing, conversely, grew from 25 percent to 31 percent, overtaking outdoor use to become the dominant category.
+
+Bathing and showering accounted for 20 percent in 1990, rising marginally to 22 percent by 2020. Kitchen-related usage, including cooking and dishwashing, increased from 10 percent to 17 percent — a noteworthy gain. The proportion attributed to laundry remained broadly stable, edging slightly from 10 percent to 15 percent over the period.` },
+];
+
+// Seed: add any missing default essays (by id) without clearing existing progress
+if (!state.seedVersion || state.seedVersion < SEED_VERSION) {
+  const existingIds = new Set(state.essays.map(e => e.id));
+  DEFAULT_ESSAYS.forEach(e => {
+    if (!existingIds.has(e.id)) {
+      state.essays.push(e);
+      state.progress[e.id] = newProgress();
+    }
+  });
+  state.seedVersion = SEED_VERSION;
+  saveState();
+}
+
+const CONNECTORS = new Set([
+  'however','furthermore','moreover','nevertheless','nonetheless','therefore',
+  'consequently','thus','hence','whereas','although','despite','admittedly',
+  'conversely','alternatively','subsequently','accordingly','meanwhile',
+  'ultimately','evidently','arguably','additionally','similarly','likewise',
+  'indeed','undeniably','particularly','overall','finally','initially',
+  'crucially','notably','predominantly','collectively',
+  'significantly','considerably','substantially','markedly','dramatically',
+  'strikingly','remarkably','comparatively','proportionally','marginally',
+  'steadily','gradually','sharply','consistently','approximately','broadly',
+  'virtually','nearly','roughly',
+  'surged','plummeted','fluctuated','peaked','levelled','accelerating',
+  'declined','climbed','retreated','edging','consolidating','dominated',
+  'constituted','accounted','registered','attracted','represented','comprised',
+  'tripling','doubling','overtaking','illustrates','demonstrates',
+  'fundamental','essential','beneficial','detrimental','prevalent',
+  'compelling','collaborative','productive','innovative','resilience',
+  'achievement','endeavour','psychological','fundamental',
+]);
+
+function tokenize(text) {
+  const out = [];
+  const re = /([A-Za-z]+(?:['\u2019][A-Za-z]+)?)|(\s+)|([^\sA-Za-z]+)/g;
+  let m;
+  while ((m = re.exec(text)) !== null) {
+    if (m[1]) out.push({ type:'word', text:m[1] });
+    else if (m[2]) out.push({ type:'space', text:m[2] });
+    else if (m[3]) out.push({ type:'punct', text:m[3] });
+  }
+  return out;
+}
+function isMaskable(t) { return t.type === 'word' && t.text.length >= 2; }
+function isKeyWord(t) { return t.type === 'word' && CONNECTORS.has(t.text.toLowerCase()); }
+function levelToBlankRatio(l) { return Math.min(0.1 + (l-1)*0.1, 0.8); }
+
+function generateBlanks(text, level, mode) {
+  const tokens = tokenize(text);
+  if (mode === 'key') {
+    const keyIdx = tokens.map((t,i) => isKeyWord(t) ? i : -1).filter(i => i >= 0);
+    if (keyIdx.length >= 3) return { tokens, masked: new Set(keyIdx) };
+  }
+  const maskableIdx = tokens.map((t,i) => isMaskable(t) ? i : -1).filter(i => i >= 0);
+  const count = Math.max(1, Math.round(maskableIdx.length * levelToBlankRatio(level)));
+  const sh = [...maskableIdx];
+  for (let i = sh.length-1; i > 0; i--) { const j = Math.floor(Math.random()*(i+1)); [sh[i],sh[j]]=[sh[j],sh[i]]; }
+  return { tokens, masked: new Set(sh.slice(0, count)) };
+}
+
+function levenshtein(a, b) {
+  a=a.toLowerCase(); b=b.toLowerCase();
+  if (a===b) return 0; const m=a.length, n=b.length;
+  if (!m) return n; if (!n) return m;
+  let prev = Array.from({length:n+1},(_,i)=>i);
+  for (let i=1;i<=m;i++) {
+    const cur=[i];
+    for (let j=1;j<=n;j++) { const c=a[i-1]===b[j-1]?0:1; cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+c); }
+    prev=cur;
+  }
+  return prev[n];
+}
+function scoreBlank(u, c) {
+  u=(u||'').trim(); c=(c||'').trim();
+  if (!u) return {score:0,level:'wrong'};
+  if (u.toLowerCase()===c.toLowerCase()) return {score:1,level:'correct'};
+  const d=levenshtein(u,c), tol=c.length<=4?1:c.length<=8?2:3;
+  return d<=tol ? {score:0.6,level:'partial'} : {score:0,level:'wrong'};
+}
+
+function scoreToGrade(s) { return s>=.95?5:s>=.85?4:s>=.70?3:s>=.50?2:s>=.30?1:0; }
+function sm2(g, p) {
+  let {ease,interval,reps}=p;
+  if (g<3) { reps=0; interval=1; ease=Math.max(1.3,ease-0.2); }
+  else { ease=Math.max(1.3,ease+(0.1-(5-g)*(0.08+(5-g)*0.02))); reps++; interval=reps===1?1:reps===2?3:Math.round(interval*ease); }
+  return {ease,interval,reps};
+}
+function updateProgress(id, score) {
+  const p=state.progress[id]||newProgress(), g=scoreToGrade(score), u=sm2(g,p);
+  let ld=score>=0.85?1:score<0.60?-1:0;
+  const nl=Math.max(1,Math.min(8,p.level+ld));
+  state.progress[id]={level:nl,ease:u.ease,interval:u.interval,reps:u.reps,nextReview:Date.now()+u.interval*864e5,lastReview:Date.now(),lastScore:score};
+  saveState();
+  return {oldLevel:p.level,newLevel:nl,levelDelta:ld,interval:u.interval};
+}
+
+const app = document.getElementById('app');
+let route = {name:'home'};
+let session = null;
+
+function navigate(name, params={}) { route={name,...params}; render(); requestAnimationFrame(()=>{const s=app.querySelector('.scroll');if(s)s.scrollTop=0;}); }
+function toast(msg,ms=1600) { const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),ms); }
+function showModal({title,body,confirmText,confirmStyle,onConfirm,cancelText='취소'}) {
+  const o=document.createElement('div'); o.className='modal-overlay';
+  o.innerHTML=`<div class="modal-sheet"><div class="modal-title">${title}</div><div class="modal-body">${body}</div><div class="modal-actions"><button class="btn btn-secondary" data-cancel>${cancelText}</button><button class="btn ${confirmStyle||'btn-primary'}" data-confirm>${confirmText}</button></div></div>`;
+  document.body.appendChild(o);
+  const close=()=>o.remove(), sheet=o.querySelector('.modal-sheet');
+  sheet.addEventListener('click',e=>e.stopPropagation());
+  sheet.addEventListener('touchend',e=>e.stopPropagation());
+  function th(el,fn){el.addEventListener('touchend',e=>{e.preventDefault();e.stopPropagation();fn();},{passive:false});el.addEventListener('click',e=>{e.stopPropagation();fn();});}
+  th(o.querySelector('[data-cancel]'),close);
+  th(o.querySelector('[data-confirm]'),()=>{close();onConfirm&&onConfirm();});
+  o.addEventListener('touchend',e=>{if(e.target===o)close();});
+  o.onclick=e=>{if(e.target===o)close();};
+}
+
+const TYPE_LABELS={opinion:'Opinion',discussion:'Discussion',problem:'Problem-Sol.',advdis:'Adv-Disadv',task1:'Task 1',task2:'Task 2'};
+
+function escHTML(s){return (s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function escAttr(s){return escHTML(s);}
+
+function greetingLine(){const h=new Date().getHours(),g=h<6?'Late night,':h<12?'Good morning,':h<18?'Good afternoon,':'Good evening,';return `${g}<br><em>Hanna.</em>`;}
+function fmtReview(ts){const d=Math.ceil((ts-Date.now())/864e5);return d<=0?'오늘':d===1?'내일 복습':`${d}일 후 복습`;}
+
+function renderHome(){
+  const now=Date.now(), due=state.essays.filter(e=>{const p=state.progress[e.id];return p&&p.nextReview<=now;}).length;
+  const sorted=[...state.essays].sort((a,b)=>(state.progress[a.id]?.nextReview||0)-(state.progress[b.id]?.nextReview||0));
+  const list=sorted.length===0?`<div class="empty-state"><div class="em-title">Nothing yet.</div><div>아래 + 버튼을 눌러 추가하세요.</div></div>`:`
+    <div class="section-label">에세이</div>
+    <div class="essay-list">${sorted.map(e=>{
+      const p=state.progress[e.id]||newProgress(), isDue=p.nextReview<=now;
+      const dl=isDue?(p.reps===0?'새 에세이':'복습 필요'):fmtReview(p.nextReview);
+      return `<div class="essay-card ${isDue?'due':''}" data-id="${e.id}">
+        <div class="essay-title">${escHTML(e.title)}</div>
+        <div class="essay-meta"><span class="level">Lv.${p.level}</span><span class="type-tag">${TYPE_LABELS[e.type]||e.type}</span><span class="${isDue?'due-pill':''}">${dl}</span></div>
+      </div>`;
+    }).join('')}</div>`;
+  return `<div class="view"><div class="scroll"><div class="home-hero"><div class="home-greeting">${greetingLine()}</div><div class="home-meta">${due>0?`<span class="dot"></span><span>오늘 복습 ${due}개</span>`:`<span>오늘 할 일을 마쳤어요 ✶</span>`}</div></div>${list}</div><button class="fab" data-action="new">+</button></div>`;
+}
+
+function renderAdd(essay){
+  const ie=!!essay, t=essay?.type||'opinion';
+  return `<div class="view">
+    <div class="header"><button class="icon-btn" data-back><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button><div class="header-title">${ie?'에세이 편집':'새 에세이'}</div><div style="width:36px"></div></div>
+    <div class="scroll"><div class="form">
+      <div><div class="field-label">제목</div><input type="text" id="f-title" value="${ie?escAttr(essay.title):''}" autocapitalize="sentences" autocomplete="off"></div>
+      <div><div class="field-label">유형</div><div class="type-picker">
+        ${['opinion','discussion','problem','advdis','task1','task2'].map(k=>`<div class="type-opt ${t===k?'active':''}" data-type="${k}">${TYPE_LABELS[k]}</div>`).join('')}
+      </div></div>
+      <div><div class="field-label">본문</div><textarea id="f-body" rows="12">${ie?escHTML(essay.text):''}</textarea><div class="field-hint">2글자 미만 단어는 빈칸 제외. 빈 줄로 단락 구분.</div></div>
+      ${ie?`<button class="btn btn-danger" data-delete="${essay.id}">삭제</button>`:''}
+    </div></div>
+    <div class="bottom-bar"><button class="btn btn-secondary" data-back>취소</button><button class="btn btn-primary" data-save="${ie?essay.id:''}">저장</button></div>
+  </div>`;
+}
+
+function renderPractice(){
+  const {essayId}=route, essay=state.essays.find(e=>e.id===essayId);
+  if(!essay){navigate('home');return '';}
+  const prog=state.progress[essayId]||newProgress();
+  if(!session||session.essayId!==essayId){
+    const mode=session?.mode||'random';
+    const {tokens,masked}=generateBlanks(essay.text,prog.level,mode);
+    session={essayId,tokens,masked,answers:{},hints:new Set(),submitted:false,results:null,mode};
+  }
+  const body=renderTokens(session.tokens,session.masked,session.submitted?session.results:null,session.answers,session.hints);
+  const ha=session.hints.size>0;
+  return `<div class="view">
+    <div class="header"><button class="icon-btn" data-back><svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg></button>
+    <div class="practice-bar" style="flex:1;border:none;padding:0;"><div class="p-title">${escHTML(essay.title)}</div><div class="progress-indicator">Lv.${prog.level} · ${session.masked.size}개</div></div></div>
+    <div class="mode-bar">
+      <button class="mode-pill ${session.mode==='random'?'active':''}" data-mode="random">랜덤</button>
+      <button class="mode-pill key ${session.mode==='key'?'active':''}" data-mode="key">핵심어</button>
+      <div class="mode-spacer"></div>
+      ${!session.submitted?`<button class="hint-btn ${ha?'active':''}" data-hint>💡 힌트${ha?' ON':''}</button>`:''}
+    </div>
+    <div class="scroll"><div class="essay-body">${body}</div></div>
+    <div class="bottom-bar">${session.submitted
+      ?`<button class="btn btn-secondary" data-retry>새로 시도</button><button class="btn btn-primary" data-finish>마치기</button>`
+      :`<button class="btn btn-primary" data-submit>채점하기</button>`
+    }</div>
+  </div>`;
+}
+
+function renderTokens(tokens,masked,results,answers,hints){
+  let bi=0; const paras=[]; let cur='';
+  tokens.forEach((tok,i)=>{
+    if(tok.type==='space'&&tok.text.includes('\n')){
+      if((tok.text.match(/\n/g)||[]).length>=2){paras.push(cur);cur='';return;}
+      cur+=' ';
+    } else if(tok.type==='space'){
+      cur+=' ';
+    } else if(masked.has(i)){
+      const c=tok.text, a=answers[i]||'', cw=Math.max(c.length,3);
+      const hinted=hints&&hints.has(i)&&!a;
+      const ph=hinted?(c[0]+'_'.repeat(Math.max(0,c.length-1))):'';
+      let cls='blank'+(hinted&&!results?' hinted':''), extra='';
+      if(results){const r=results[bi];cls='blank '+r.level;if(r.level!=='correct')extra=`<span class="correction">${escHTML(c)}</span>`;}
+      cur+=`<input type="text" class="${cls}" data-bi="${i}" data-correct="${escAttr(c)}" value="${escAttr(a)}" placeholder="${escAttr(ph)}" ${results?'readonly':''} style="width:${cw*.75+1.2}em;min-width:${cw*.75+1.2}em" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="next">${extra}`;
+      bi++;
+    } else { cur+=escHTML(tok.text); }
+  });
+  if(cur)paras.push(cur);
+  return paras.map(p=>`<p>${p}</p>`).join('');
+}
+
+function renderResults(){
+  const {essayId,results,progressUpdate,wrongIndices}=route;
+  const essay=state.essays.find(e=>e.id===essayId);
+  if(!essay){navigate('home');return '';}
+  const tot=results.length, cc=results.filter(r=>r.level==='correct').length, pc=results.filter(r=>r.level==='partial').length, wc=results.filter(r=>r.level==='wrong').length;
+  const pct=Math.round(results.reduce((s,r)=>s+r.score,0)/tot*100);
+  const lbl=pct>=95?'Outstanding.':pct>=85?'Excellent work.':pct>=70?'Well done.':pct>=50?'Keep going.':'Review & retry.';
+  const {oldLevel,newLevel,levelDelta,interval}=progressUpdate;
+  const lc=levelDelta>0?'level-change':levelDelta<0?'level-change down':'level-change same';
+  const lt=levelDelta>0?`${oldLevel} → ${newLevel} ↑`:levelDelta<0?`${oldLevel} → ${newLevel} ↓`:`${oldLevel}`;
+  const rv=interval===1?'내일':`${interval}일 후`;
+  const hw=(wc+pc)>0;
+  return `<div class="view">
+    <div class="header"><button class="icon-btn" data-back-home><svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg></button><div class="header-title">결과</div><div style="width:36px"></div></div>
+    <div class="scroll">
+      <div class="results-wrap">
+        <div class="score-big">${pct}<span class="score-percent">%</span></div>
+        <div class="score-label">${lbl}</div>
+        <div class="score-bar">
+          <div class="score-chip correct"><div class="score-chip-num">${cc}</div><div class="score-chip-label">정답</div></div>
+          <div class="score-chip partial"><div class="score-chip-num">${pc}</div><div class="score-chip-label">유사</div></div>
+          <div class="score-chip wrong"><div class="score-chip-num">${wc}</div><div class="score-chip-label">오답</div></div>
+        </div>
+      </div>
+      <div class="progress-panel">
+        <div class="progress-row"><span class="pr-label">레벨</span><span class="pr-value ${lc}">${lt}</span></div>
+        <div class="progress-row"><span class="pr-label">다음 복습</span><span class="pr-value">${rv}</span></div>
+        <div class="progress-row"><span class="pr-label">빈칸 비율</span><span class="pr-value">${Math.round(levelToBlankRatio(newLevel)*100)}%</span></div>
+      </div>
+      <div class="results-actions">
+        <button class="btn btn-secondary" data-review="${essayId}">채점 결과 보기</button>
+        ${hw?`<button class="btn btn-accent" data-retry-wrong>틀린 것만 재시험 (${wc+pc}개)</button>`:''}
+      </div>
+    </div>
+    <div class="bottom-bar"><button class="btn btn-primary" data-back-home>홈으로</button></div>
+  </div>`;
+}
+
+function render(){
+  const h={home:renderHome,add:()=>renderAdd(null),edit:()=>renderAdd(state.essays.find(e=>e.id===route.essayId)),practice:renderPractice,results:renderResults};
+  app.innerHTML=(h[route.name]||renderHome)();
+  attachHandlers();
+}
+
+function attachHandlers(){
+  app.querySelectorAll('[data-back]').forEach(el=>el.onclick=()=>{
+    if(route.name==='practice'&&session&&!session.submitted&&Object.keys(session.answers).length>0)
+      showModal({title:'나갈까요?',body:'진행 중 답안이 사라집니다.',confirmText:'나가기',confirmStyle:'btn-danger',onConfirm:()=>{session=null;navigate('home');}});
+    else{session=null;navigate('home');}
+  });
+  app.querySelectorAll('[data-back-home]').forEach(el=>el.onclick=()=>{session=null;navigate('home');});
+  app.querySelectorAll('[data-action="new"]').forEach(el=>el.onclick=()=>navigate('add'));
+  app.querySelectorAll('.essay-card').forEach(el=>{
+    el.onclick=()=>navigate('practice',{essayId:el.dataset.id});
+    let pt; el.addEventListener('touchstart',()=>{pt=setTimeout(()=>{navigator.vibrate&&navigator.vibrate(20);navigate('edit',{essayId:el.dataset.id});},600);});
+    el.addEventListener('touchend',()=>clearTimeout(pt)); el.addEventListener('touchmove',()=>clearTimeout(pt));
+  });
+  app.querySelectorAll('.type-opt').forEach(el=>el.onclick=()=>{el.parentElement.querySelectorAll('.type-opt').forEach(x=>x.classList.remove('active'));el.classList.add('active');});
+  app.querySelectorAll('[data-save]').forEach(el=>el.onclick=()=>{
+    const ti=app.querySelector('#f-title').value.trim(), bo=app.querySelector('#f-body').value.trim();
+    const ty=(app.querySelector('.type-opt.active')?.dataset.type)||'opinion';
+    if(!ti){toast('제목을 입력하세요');return;} if(!bo||bo.length<50){toast('본문이 너무 짧아요');return;}
+    const eid=el.dataset.save;
+    if(eid){const e=state.essays.find(x=>x.id===eid);if(e){e.title=ti;e.text=bo;e.type=ty;}}
+    else{const id='e-'+Date.now();state.essays.push({id,title:ti,text:bo,type:ty,created:Date.now()});state.progress[id]=newProgress();}
+    saveState();toast(eid?'저장되었습니다':'추가되었습니다');navigate('home');
+  });
+  app.querySelectorAll('[data-delete]').forEach(el=>el.onclick=()=>{
+    showModal({title:'삭제할까요?',body:'에세이와 학습 기록이 모두 삭제됩니다.',confirmText:'삭제',confirmStyle:'btn-danger',
+      onConfirm:()=>{const id=el.dataset.delete;state.essays=state.essays.filter(e=>e.id!==id);delete state.progress[id];saveState();toast('삭제됨');navigate('home');}});
+  });
+  app.querySelectorAll('[data-mode]').forEach(el=>el.onclick=()=>{
+    const nm=el.dataset.mode; if(!session||session.mode===nm)return;
+    const e=state.essays.find(x=>x.id===session.essayId), p=state.progress[session.essayId]||newProgress();
+    const {tokens,masked}=generateBlanks(e.text,p.level,nm);
+    session={essayId:session.essayId,tokens,masked,answers:{},hints:new Set(),submitted:false,results:null,mode:nm};
+    render();
+  });
+  app.querySelectorAll('[data-hint]').forEach(el=>el.onclick=()=>{
+    if(!session||session.submitted)return;
+    if(session.hints.size>0){session.hints=new Set();toast('힌트 OFF');}
+    else{session.masked.forEach(i=>{if(!session.answers[i])session.hints.add(i);});
+    if(session.hints.size===0)toast('빈 칸이 없어요');else toast(`힌트 ON — ${session.hints.size}개`);}
+    render();
+  });
+  app.querySelectorAll('.blank').forEach(inp=>{
+    const bi=inp.dataset.bi;
+    inp.addEventListener('input',e=>{if(session){session.answers[bi]=e.target.value;if(session.hints.has(+bi))session.hints.delete(+bi);}});
+    inp.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();const all=Array.from(app.querySelectorAll('.blank')),idx=all.indexOf(inp);if(idx<all.length-1)all[idx+1].focus();else inp.blur();}});
+  });
+  app.querySelectorAll('[data-submit]').forEach(el=>el.onclick=()=>{
+    if(!session)return;
+    const fc=Object.values(session.answers).filter(v=>v&&v.trim()).length, tb=session.masked.size;
+    if(fc<tb)showModal({title:'다 채우지 않았어요',body:`${tb-fc}개가 비어있습니다. 채점할까요?`,confirmText:'채점하기',onConfirm:doSubmit});
+    else doSubmit();
+  });
+  app.querySelectorAll('[data-retry]').forEach(el=>el.onclick=()=>{session=null;navigate('practice',{essayId:route.essayId});});
+  app.querySelectorAll('[data-finish]').forEach(el=>el.onclick=()=>{
+    const results=[]; const wrongIndices=[];
+    Array.from(session.masked).sort((a,b)=>a-b).forEach(i=>{
+      const r=scoreBlank(session.answers[i]||'',session.tokens[i].text); results.push(r);
+      if(r.level!=='correct')wrongIndices.push(i);
+    });
+    const avg=results.reduce((s,r)=>s+r.score,0)/results.length;
+    const up=updateProgress(session.essayId,avg);
+    navigate('results',{essayId:session.essayId,results,progressUpdate:up,wrongIndices});
+  });
+  app.querySelectorAll('[data-retry-wrong]').forEach(el=>el.onclick=()=>{
+    const {essayId,wrongIndices}=route; if(!wrongIndices?.length)return;
+    const e=state.essays.find(x=>x.id===essayId); if(!e)return;
+    const tokens=tokenize(e.text);
+    session={essayId,tokens,masked:new Set(wrongIndices),answers:{},hints:new Set(),submitted:false,results:null,mode:'random'};
+    navigate('practice',{essayId});
+  });
+  app.querySelectorAll('[data-review]').forEach(el=>el.onclick=()=>navigate('practice',{essayId:el.dataset.review}));
+}
+
+function doSubmit(){
+  if(!session)return;
+  const idx=Array.from(session.masked).sort((a,b)=>a-b);
+  session.results=idx.map(i=>scoreBlank(session.answers[i]||'',session.tokens[i].text));
+  session.submitted=true; render();
+  requestAnimationFrame(()=>{const s=app.querySelector('.scroll');if(s)s.scrollTop=0;});
+}
+
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+render();
+</script>
+</body>
+</html>
