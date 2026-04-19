@@ -936,9 +936,17 @@ In conclusion, although digital tools can be misused, I maintain that they are n
     `;
     document.body.appendChild(overlay);
     const close = () => overlay.remove();
-    overlay.querySelector('[data-cancel]').onclick = close;
-    overlay.querySelector('[data-confirm]').onclick = () => { close(); onConfirm && onConfirm(); };
-    overlay.onclick = (e) => { if (e.target === overlay) close(); };
+    const sheet = overlay.querySelector('.modal-sheet');
+sheet.addEventListener('click', e => e.stopPropagation());
+sheet.addEventListener('touchend', e => e.stopPropagation());
+function tapHandler(el, fn) {
+  el.addEventListener('touchend', e => { e.preventDefault(); e.stopPropagation(); fn(); }, { passive: false });
+  el.addEventListener('click', e => { e.stopPropagation(); fn(); });
+}
+tapHandler(overlay.querySelector('[data-cancel]'), close);
+tapHandler(overlay.querySelector('[data-confirm]'), () => { close(); onConfirm && onConfirm(); });
+overlay.onclick = e => { if (e.target === overlay) close(); };
+
   }
 
   // =============================================================
