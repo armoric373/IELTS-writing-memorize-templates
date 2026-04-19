@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="IELTS 암기장">
+  <meta name="theme-color" content="#f7f3ec">
+  <meta name="format-detection" content="telephone=no">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Geist:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+  <title>IELTS 암기장</title>
+  <style>
+    :root {
+      --paper: #f7f3ec;
+      --paper-warm: #f2ecdf;
+      --ink: #1a2420;
+      --ink-soft: #4a544e;
+      --ink-mute: #8a9088;
+      --line: #dcd3c1;
+      --line-soft: #ebe3d2;
+      --ember: #c9632f;
+      --ember-soft: #e8a97c;
+      --sage: #5f7a5a;
+      --sage-soft: #c8d4c3;
+      --brick: #b5534a;
+      --brick-soft: #e8c8c4;
+      --mustard: #c5a242;
+      --mustard-soft: #ebdfb8;
+
+      --font-display: 'Fraunces', Georgia, serif;
+      --font-ui: 'Geist', -apple-system, system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+      --radius-sm: 4px;
+      --radius: 8px;
+      --radius-lg: 14px;
+
+      --safe-top: env(safe-area-inset-top);
+      --safe-bot: env(safe-area-inset-bottom);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      background: var(--paper);
+      color: var(--ink);
+      font-family: var(--font-ui);
+      font-size: 16px;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 20% 0%, rgba(201, 99, 47, 0.04), transparent 60%),
+        radial-gradient(ellipse 70% 50% at 100% 100%, rgba(95, 122, 90, 0.05), transparent 60%);
+    }
+
+    /* Paper grain */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 100;
+      opacity: 0.35;
+      mix-blend-mode: multiply;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.1 0 0 0 0 0.14 0 0 0 0 0.12 0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.2'/></svg>");
+    }
+
+    #app {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      padding-top: var(--safe-top);
+    }
+
+    .view {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== Header ===== */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px 10px;
+      border-bottom: 1px solid var(--line-soft);
+      background: var(--paper);
+      z-index: 10;
+      flex-shrink: 0;
+    }
+
+    .header-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      font-variation-settings: "opsz" 14, "SOFT" 50;
+    }
+
+    .header-sub {
+      font-size: 12px;
+      color: var(--ink-mute);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .icon-btn {
+      background: transparent;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      color: var(--ink);
+      transition: background 0.15s;
+      font-family: var(--font-ui);
+      font-size: 16px;
+    }
+    .icon-btn:active { background: var(--line-soft); }
+    .icon-btn svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; }
+
+    /* ===== Scroll area ===== */
+    .scroll {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* ===== Home ===== */
+    .home-hero {
+      padding: 32px 24px 20px;
+    }
+    .home-greeting {
+      font-family: var(--font-display);
+      font-weight: 400;
+      font-size: 34px;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      font-variation-settings: "opsz" 48, "SOFT" 100;
+    }
+    .home-greeting em {
+      font-style: italic;
+      color: var(--ember);
+      font-weight: 400;
+    }
+    .home-meta {
+      margin-top: 14px;
+      font-size: 13px;
+      color: var(--ink-soft);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ember);
+      display: inline-block;
+    }
+
+    .section-label {
+      padding: 0 24px;
+      margin-top: 28px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+
+    .essay-list {
+      padding: 0 16px 120px;
+    }
+
+    .essay-card {
+      background: var(--paper-warm);
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-lg);
+      padding: 16px 18px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      cursor: pointer;
+      transition: transform 0.1s, border-color 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+    .essay-card:active {
+      transform: scale(0.99);
+      border-color: var(--line);
+    }
+
+    .essay-card.due::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--ember);
+    }
+
+    .essay-card-body {
+      flex: 1;
+      min-width: 0;
+    }
+    .essay-title {
+      font-family: var(--font-display);
+      font-weight: 500;
+      font-size: 17px;
+      line-height: 1.3;
+      color: var(--ink);
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .essay-meta {
+      font-size: 12px;
+      color: var(--ink-mute);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .essay-meta .level {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ember);
+      padding: 2px 7px;
+      background: rgba(201, 99, 47, 0.08);
+      border-radius: 3px;
+      letter-spacing: 0.02em;
+    }
+    .essay-meta .due-pill {
+      color: var(--ember);
+      font-weight: 500;
+    }
+
+    .empty-state {
+      padding: 60px 32px;
+      text-align: center;
+      color: var(--ink-mute);
+    }
+    .empty-state .em-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      color: var(--ink-soft);
+      margin-bottom: 8px;
+      font-style: italic;
+    }
+    .empty-state .em-body {
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    /* ===== FAB ===== */
+    .fab {
+      position: absolute;
+      right: 20px;
+      bottom: calc(24px + var(--safe-bot));
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--ink);
+      color: var(--paper);
+      border: none;
+      font-size: 28px;
+      font-weight: 300;
+      box-shadow: 0 6px 24px rgba(26, 36, 32, 0.25);
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      z-index: 20;
+      transition: transform 0.15s;
+    }
+    .fab:active { transform: scale(0.92); }
+
+    /* ===== Form ===== */
+    .form {
+      padding: 20px 24px calc(120px + var(--safe-bot));
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .field-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+      margin-bottom: 8px;
+    }
+    .field-hint {
+      font-size: 12px;
+      color: var(--ink-mute);
+      margin-top: 6px;
+      line-height: 1.5;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      background: var(--paper-warm);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-family: var(--font-ui);
+      font-size: 16px;
+      color: var(--ink);
+      line-height: 1.5;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 240px;
+      font-family: var(--font-display);
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--ember);
+    }
+
+    .type-picker {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+    .type-opt {
+      background: var(--paper-warm);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      font-size: 13px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      color: var(--ink-soft);
+      font-family: var(--font-ui);
+    }
+    .type-opt.active {
+      background: var(--ink);
+      color: var(--paper);
+      border-color: var(--ink);
+    }
+
+    /* ===== Bottom bar ===== */
+    .bottom-bar {
+      position: absolute;
+      left: 0; right: 0; bottom: 0;
+      padding: 14px 20px calc(14px + var(--safe-bot));
+      background: linear-gradient(to top, var(--paper) 70%, rgba(247, 243, 236, 0));
+      display: flex;
+      gap: 10px;
+      z-index: 20;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 15px 20px;
+      border: none;
+      border-radius: var(--radius);
+      font-family: var(--font-ui);
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: 0.01em;
+      transition: transform 0.1s, background 0.15s;
+      -webkit-appearance: none;
+    }
+    .btn:active { transform: scale(0.98); }
+    .btn-primary {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .btn-secondary {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--ink-soft);
+      padding: 12px;
+    }
+    .btn-danger {
+      background: transparent;
+      color: var(--brick);
+      border: 1px solid var(--brick-soft);
+    }
+
+    /* ===== Practice ===== */
+    .practice-bar {
+      padding: 12px 20px;
+      background: var(--paper);
+      border-bottom: 1px solid var(--line-soft);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      color: var(--ink-soft);
+    }
+    .practice-bar .p-title {
+      font-family: var(--font-display);
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--ink);
+      font-style: italic;
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      margin-right: 12px;
+    }
+    .progress-indicator {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--ember);
+      background: rgba(201, 99, 47, 0.08);
+      padding: 3px 8px;
+      border-radius: 3px;
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+    }
+
+    .essay-body {
+      padding: 28px 24px 24px;
+      font-family: var(--font-display);
+      font-size: 18px;
+      line-height: 2.0;
+      color: var(--ink);
+      font-variation-settings: "opsz" 24, "SOFT" 50;
+      word-wrap: break-word;
+    }
+    .essay-body p {
+      margin-bottom: 1.2em;
+    }
+    .essay-body p:last-child {
+      margin-bottom: 0;
+      padding-bottom: 140px;
+    }
+
+    /* Blank input - inline */
+    .blank {
+      display: inline-block;
+      vertical-align: baseline;
+      min-width: 3.5em;
+      background: transparent;
+      border: none;
+      border-bottom: 1.5px dotted var(--ember);
+      font-family: var(--font-mono);
+      font-size: 16px;
+      line-height: 1.3;
+      padding: 0 4px;
+      margin: 0 1px;
+      color: var(--ember);
+      text-align: center;
+      font-weight: 500;
+      -webkit-appearance: none;
+      appearance: none;
+      border-radius: 0;
+      transition: background 0.15s, border-color 0.15s;
+    }
+    .blank:focus {
+      outline: none;
+      background: rgba(201, 99, 47, 0.08);
+      border-bottom-style: solid;
+      border-bottom-width: 2px;
+    }
+    .blank.correct {
+      color: var(--sage);
+      border-bottom-color: var(--sage);
+      background: rgba(95, 122, 90, 0.08);
+    }
+    .blank.partial {
+      color: var(--mustard);
+      border-bottom-color: var(--mustard);
+      background: rgba(197, 162, 66, 0.1);
+    }
+    .blank.wrong {
+      color: var(--brick);
+      border-bottom-color: var(--brick);
+      background: rgba(181, 83, 74, 0.08);
+      text-decoration: line-through;
+      text-decoration-thickness: 1px;
+    }
+
+    .correction {
+      display: inline-block;
+      margin-left: 3px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      color: var(--sage);
+      font-weight: 500;
+      padding: 1px 4px;
+      background: var(--sage-soft);
+      border-radius: 3px;
+      vertical-align: baseline;
+    }
+
+    /* ===== Results ===== */
+    .results-wrap {
+      padding: 36px 24px 32px;
+      text-align: center;
+    }
+    .score-big {
+      font-family: var(--font-display);
+      font-size: 96px;
+      line-height: 1;
+      font-weight: 400;
+      letter-spacing: -0.04em;
+      font-variation-settings: "opsz" 144, "SOFT" 100;
+    }
+    .score-percent {
+      font-size: 38px;
+      vertical-align: top;
+      margin-left: 4px;
+      color: var(--ink-mute);
+    }
+    .score-label {
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 20px;
+      color: var(--ink-soft);
+      margin-top: 8px;
+    }
+    .score-bar {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+    }
+    .score-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      background: var(--paper-warm);
+      min-width: 72px;
+    }
+    .score-chip-num {
+      font-family: var(--font-display);
+      font-size: 24px;
+      font-weight: 500;
+    }
+    .score-chip-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-mute);
+    }
+    .score-chip.correct .score-chip-num { color: var(--sage); }
+    .score-chip.partial .score-chip-num { color: var(--mustard); }
+    .score-chip.wrong .score-chip-num { color: var(--brick); }
+
+    .progress-panel {
+      margin: 28px 20px 0;
+      padding: 20px;
+      background: var(--paper-warm);
+      border: 1px solid var(--line-soft);
+      border-radius: var(--radius-lg);
+    }
+    .progress-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--line-soft);
+    }
+    .progress-row:last-child { border-bottom: none; }
+    .progress-row .pr-label {
+      font-size: 13px;
+      color: var(--ink-soft);
+    }
+    .progress-row .pr-value {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+    }
+    .level-change {
+      color: var(--sage);
+      font-weight: 600;
+    }
+    .level-change.down { color: var(--brick); }
+    .level-change.same { color: var(--ink-mute); }
+
+    /* ===== Modal ===== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(26, 36, 32, 0.4);
+      z-index: 50;
+      display: grid;
+      place-items: end center;
+      animation: fadeIn 0.2s ease;
+    }
+    .modal-sheet {
+      background: var(--paper);
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+      width: 100%;
+      max-width: 560px;
+      padding: 24px 20px calc(24px + var(--safe-bot));
+      animation: slideUp 0.25s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: 20px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .modal-body {
+      font-size: 14px;
+      color: var(--ink-soft);
+      margin-bottom: 20px;
+      line-height: 1.6;
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+    }
+
+    /* ===== Toast ===== */
+    .toast {
+      position: fixed;
+      top: calc(20px + var(--safe-top));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--ink);
+      color: var(--paper);
+      padding: 10px 18px;
+      border-radius: 100px;
+      font-size: 13px;
+      z-index: 200;
+      animation: toastIn 0.3s ease;
+      box-shadow: 0 4px 20px rgba(26, 36, 32, 0.2);
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+
+    /* Large screen */
+    @media (min-width: 640px) {
+      #app { max-width: 560px; margin: 0 auto; box-shadow: 0 0 40px rgba(26, 36, 32, 0.08); }
+    }
+  </style>
+</head>
+<body>
+  <main id="app"></main>
+
+  <script>
+  // =============================================================
+  // STORAGE
+  // =============================================================
+  const STORAGE_KEY = 'ielts-memo-v1';
+  const defaultState = {
+    essays: [],
+    progress: {}, // { essayId: { level, ease, interval, reps, nextReview, lastScore } }
+  };
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { ...defaultState };
+      const parsed = JSON.parse(raw);
+      return { ...defaultState, ...parsed };
+    } catch (e) {
+      return { ...defaultState };
+    }
+  }
+
+  function saveState() {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) {
+      console.warn('Save failed', e);
+    }
+  }
+
+  let state = loadState();
+
+  // Seed a sample essay on first launch
+  if (state.essays.length === 0) {
+    const sampleId = 'sample-' + Date.now();
+    state.essays.push({
+      id: sampleId,
+      title: 'Technology & Social Interaction',
+      type: 'opinion',
+      text: `In recent decades, rapid advances in digital technology have fundamentally reshaped the way people interact with one another. While some contend that these changes have eroded the quality of social relationships, I firmly believe that technology, when used thoughtfully, can in fact enrich human connection.
+
+On the one hand, it is undeniable that excessive reliance on screens can diminish face-to-face engagement. For instance, families often spend evenings absorbed in their individual devices rather than conversing with one another. This trend, critics argue, has led to a generation that is technically well-connected yet emotionally isolated.
+
+On the other hand, however, technology has enabled forms of communication that were previously unimaginable. Video calling platforms allow grandparents to watch their grandchildren grow up from thousands of miles away, and online communities offer vital support to individuals who might otherwise feel alone. In this sense, technology does not replace genuine interaction but rather extends its reach.
+
+In conclusion, although digital tools can be misused, I maintain that they are not inherently detrimental to social bonds. Provided that individuals exercise discipline and intentionality, technology can serve as a powerful instrument for deepening, rather than weakening, human relationships.`,
+      created: Date.now(),
+    });
+    state.progress[sampleId] = newProgress();
+    saveState();
+  }
+
+  function newProgress() {
+    return {
+      level: 1,
+      ease: 2.5,
+      interval: 0,
+      reps: 0,
+      nextReview: Date.now(),
+      lastScore: null,
+      lastReview: null,
+    };
+  }
+
+  // =============================================================
+  // TOKENIZER & BLANK GENERATION
+  // =============================================================
+  function tokenize(text) {
+    // Split into tokens preserving whitespace and punctuation
+    const out = [];
+    // Match: word-chars (with possible apostrophes), or any single non-word char
+    const re = /([A-Za-z]+(?:['\u2019][A-Za-z]+)?)|(\s+)|([^\sA-Za-z]+)/g;
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      if (m[1]) out.push({ type: 'word', text: m[1] });
+      else if (m[2]) out.push({ type: 'space', text: m[2] });
+      else if (m[3]) out.push({ type: 'punct', text: m[3] });
+    }
+    return out;
+  }
+
+  function isMaskable(token) {
+    if (token.type !== 'word') return false;
+    if (token.text.length < 2) return false;
+    return true;
+  }
+
+  function levelToBlankRatio(level) {
+    // L1 = 10%, L2 = 20% ... L8 = 80%
+    return Math.min(0.1 + (level - 1) * 0.1, 0.8);
+  }
+
+  function generateBlanks(text, level) {
+    const tokens = tokenize(text);
+    const maskableIdx = tokens
+      .map((t, i) => isMaskable(t) ? i : -1)
+      .filter(i => i >= 0);
+
+    const ratio = levelToBlankRatio(level);
+    const count = Math.max(1, Math.round(maskableIdx.length * ratio));
+
+    // Shuffle
+    const shuffled = [...maskableIdx];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    const masked = new Set(shuffled.slice(0, count));
+    return { tokens, masked };
+  }
+
+  // =============================================================
+  // SCORING
+  // =============================================================
+  function levenshtein(a, b) {
+    a = a.toLowerCase();
+    b = b.toLowerCase();
+    if (a === b) return 0;
+    const m = a.length, n = b.length;
+    if (!m) return n;
+    if (!n) return m;
+    let prev = new Array(n + 1);
+    for (let j = 0; j <= n; j++) prev[j] = j;
+    for (let i = 1; i <= m; i++) {
+      const cur = [i];
+      for (let j = 1; j <= n; j++) {
+        const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+        cur[j] = Math.min(cur[j - 1] + 1, prev[j] + 1, prev[j - 1] + cost);
+      }
+      prev = cur;
+    }
+    return prev[n];
+  }
+
+  function scoreBlank(userInput, correct) {
+    const u = (userInput || '').trim();
+    const c = (correct || '').trim();
+    if (!u) return { score: 0, level: 'wrong' };
+    if (u.toLowerCase() === c.toLowerCase()) return { score: 1, level: 'correct' };
+    const dist = levenshtein(u, c);
+    const maxLen = Math.max(u.length, c.length);
+    // Tolerance based on word length
+    const tolerance = c.length <= 4 ? 1 : c.length <= 8 ? 2 : 3;
+    if (dist <= tolerance) {
+      return { score: 0.6, level: 'partial' };
+    }
+    return { score: 0, level: 'wrong' };
+  }
+
+  // =============================================================
+  // SM-2 ALGORITHM
+  // =============================================================
+  function scoreToGrade(score) {
+    if (score >= 0.95) return 5;
+    if (score >= 0.85) return 4;
+    if (score >= 0.70) return 3;
+    if (score >= 0.50) return 2;
+    if (score >= 0.30) return 1;
+    return 0;
+  }
+
+  function sm2(grade, progress) {
+    let { ease, interval, reps } = progress;
+    if (grade < 3) {
+      reps = 0;
+      interval = 1;
+      ease = Math.max(1.3, ease - 0.2);
+    } else {
+      ease = Math.max(1.3, ease + (0.1 - (5 - grade) * (0.08 + (5 - grade) * 0.02)));
+      reps = reps + 1;
+      if (reps === 1) interval = 1;
+      else if (reps === 2) interval = 3;
+      else interval = Math.round(interval * ease);
+    }
+    return { ease, interval, reps };
+  }
+
+  function updateProgress(essayId, overallScore) {
+    const p = state.progress[essayId] || newProgress();
+    const grade = scoreToGrade(overallScore);
+    const updated = sm2(grade, p);
+
+    // Level adjustment
+    let levelDelta = 0;
+    if (overallScore >= 0.85) levelDelta = 1;
+    else if (overallScore < 0.60) levelDelta = -1;
+    const newLevel = Math.max(1, Math.min(8, p.level + levelDelta));
+
+    const nextReview = Date.now() + updated.interval * 24 * 60 * 60 * 1000;
+
+    state.progress[essayId] = {
+      level: newLevel,
+      ease: updated.ease,
+      interval: updated.interval,
+      reps: updated.reps,
+      nextReview,
+      lastReview: Date.now(),
+      lastScore: overallScore,
+    };
+    saveState();
+
+    return {
+      oldLevel: p.level,
+      newLevel,
+      levelDelta,
+      interval: updated.interval,
+      nextReview,
+    };
+  }
+
+  // =============================================================
+  // ROUTER / RENDER
+  // =============================================================
+  const app = document.getElementById('app');
+  let route = { name: 'home' };
+  let session = null; // active practice session
+
+  function navigate(name, params = {}) {
+    route = { name, ...params };
+    render();
+    // Reset scroll
+    requestAnimationFrame(() => {
+      const s = app.querySelector('.scroll');
+      if (s) s.scrollTop = 0;
+    });
+  }
+
+  function toast(msg, ms = 1600) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), ms);
+  }
+
+  function showModal({ title, body, confirmText, confirmStyle, onConfirm, cancelText = '취소' }) {
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay';
+    overlay.innerHTML = `
+      <div class="modal-sheet">
+        <div class="modal-title">${title}</div>
+        <div class="modal-body">${body}</div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" data-cancel>${cancelText}</button>
+          <button class="btn ${confirmStyle || 'btn-primary'}" data-confirm>${confirmText}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    const close = () => overlay.remove();
+    overlay.querySelector('[data-cancel]').onclick = close;
+    overlay.querySelector('[data-confirm]').onclick = () => { close(); onConfirm && onConfirm(); };
+    overlay.onclick = (e) => { if (e.target === overlay) close(); };
+  }
+
+  // =============================================================
+  // VIEWS
+  // =============================================================
+  function renderHome() {
+    const now = Date.now();
+    const dueCount = state.essays.filter(e => {
+      const p = state.progress[e.id];
+      return p && p.nextReview <= now;
+    }).length;
+
+    const sortedEssays = [...state.essays].sort((a, b) => {
+      const pa = state.progress[a.id];
+      const pb = state.progress[b.id];
+      // Due first, then by next review ascending
+      return (pa?.nextReview || 0) - (pb?.nextReview || 0);
+    });
+
+    const essayHTML = sortedEssays.length === 0 ? `
+      <div class="empty-state">
+        <div class="em-title">Nothing yet.</div>
+        <div class="em-body">아래 버튼을 눌러<br>첫 번째 에세이를 추가하세요.</div>
+      </div>
+    ` : `
+      <div class="section-label">에세이</div>
+      <div class="essay-list">
+        ${sortedEssays.map(e => {
+          const p = state.progress[e.id] || newProgress();
+          const due = p.nextReview <= now;
+          const dueLabel = due
+            ? (p.reps === 0 ? '새 에세이' : '복습 필요')
+            : formatNextReview(p.nextReview);
+          return `
+            <div class="essay-card ${due ? 'due' : ''}" data-id="${e.id}">
+              <div class="essay-card-body">
+                <div class="essay-title">${escapeHTML(e.title)}</div>
+                <div class="essay-meta">
+                  <span class="level">Lv.${p.level}</span>
+                  <span class="${due ? 'due-pill' : ''}">${dueLabel}</span>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+
+    return `
+      <div class="view">
+        <div class="scroll">
+          <div class="home-hero">
+            <div class="home-greeting">
+              ${greetingLine()}
+            </div>
+            <div class="home-meta">
+              ${dueCount > 0
+                ? `<span class="dot"></span><span>오늘 복습할 에세이 ${dueCount}개</span>`
+                : `<span>오늘 할 일을 마쳤어요 ✶</span>`
+              }
+            </div>
+          </div>
+          ${essayHTML}
+        </div>
+        <button class="fab" data-action="new">+</button>
+      </div>
+    `;
+  }
+
+  function greetingLine() {
+    const h = new Date().getHours();
+    let g;
+    if (h < 6) g = 'Late night,';
+    else if (h < 12) g = 'Good morning,';
+    else if (h < 18) g = 'Good afternoon,';
+    else g = 'Good evening,';
+    return `${g}<br><em>Hanna.</em>`;
+  }
+
+  function formatNextReview(ts) {
+    const diff = ts - Date.now();
+    const days = Math.ceil(diff / (24 * 60 * 60 * 1000));
+    if (days <= 0) return '오늘';
+    if (days === 1) return '내일 복습';
+    return `${days}일 후 복습`;
+  }
+
+  function renderAddEssay(essay) {
+    const isEdit = !!essay;
+    return `
+      <div class="view">
+        <div class="header">
+          <button class="icon-btn" data-back>
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="header-title">${isEdit ? '에세이 편집' : '새 에세이'}</div>
+          <div style="width: 36px"></div>
+        </div>
+        <div class="scroll">
+          <div class="form">
+            <div>
+              <div class="field-label">제목</div>
+              <input type="text" id="f-title" placeholder="예: Opinion Essay – Technology"
+                value="${isEdit ? escapeAttr(essay.title) : ''}"
+                autocapitalize="sentences" autocomplete="off">
+            </div>
+            <div>
+              <div class="field-label">유형</div>
+              <div class="type-picker">
+                <div class="type-opt ${isEdit && essay.type === 'opinion' ? 'active' : (!isEdit ? 'active' : '')}" data-type="opinion">Opinion</div>
+                <div class="type-opt ${isEdit && essay.type === 'discussion' ? 'active' : ''}" data-type="discussion">Discussion</div>
+                <div class="type-opt ${isEdit && essay.type === 'problem' ? 'active' : ''}" data-type="problem">Problem-Solution</div>
+                <div class="type-opt ${isEdit && essay.type === 'advdis' ? 'active' : ''}" data-type="advdis">Adv-Disadv</div>
+              </div>
+            </div>
+            <div>
+              <div class="field-label">본문</div>
+              <textarea id="f-body" placeholder="에세이 본문을 붙여넣으세요…" rows="12">${isEdit ? escapeHTML(essay.text) : ''}</textarea>
+              <div class="field-hint">단어 2글자 미만은 빈칸 대상에서 제외됩니다. 단락은 빈 줄로 구분하세요.</div>
+            </div>
+            ${isEdit ? `<button class="btn btn-danger" data-delete="${essay.id}">삭제</button>` : ''}
+          </div>
+        </div>
+        <div class="bottom-bar">
+          <button class="btn btn-secondary" data-back>취소</button>
+          <button class="btn btn-primary" data-save="${isEdit ? essay.id : ''}">저장</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderPractice() {
+    const { essayId } = route;
+    const essay = state.essays.find(e => e.id === essayId);
+    if (!essay) { navigate('home'); return ''; }
+    const progress = state.progress[essayId] || newProgress();
+
+    if (!session || session.essayId !== essayId) {
+      const { tokens, masked } = generateBlanks(essay.text, progress.level);
+      session = {
+        essayId,
+        tokens,
+        masked,
+        answers: {},
+        submitted: false,
+        results: null,
+      };
+    }
+
+    // Render essay with blanks
+    const bodyHTML = renderEssayTokens(session.tokens, session.masked, session.submitted ? session.results : null, session.answers);
+    const totalBlanks = session.masked.size;
+
+    return `
+      <div class="view">
+        <div class="header">
+          <button class="icon-btn" data-back>
+            <svg viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+          <div class="practice-bar" style="flex: 1; border-bottom: none; padding: 0;">
+            <div class="p-title">${escapeHTML(essay.title)}</div>
+            <div class="progress-indicator">Lv.${progress.level} · ${totalBlanks}개</div>
+          </div>
+        </div>
+        <div class="scroll">
+          <div class="essay-body">${bodyHTML}</div>
+        </div>
+        <div class="bottom-bar">
+          ${session.submitted
+            ? `<button class="btn btn-secondary" data-retry>다시 시도</button>
+               <button class="btn btn-primary" data-finish>마치기</button>`
+            : `<button class="btn btn-primary" data-submit>채점하기</button>`
+          }
+        </div>
+      </div>
+    `;
+  }
+
+  function renderEssayTokens(tokens, masked, results, answers) {
+    // results: array of {score, level} per blank index, or null before submit
+    let html = '';
+    let blankIdx = 0;
+    const paragraphs = [];
+    let current = '';
+
+    tokens.forEach((tok, i) => {
+      if (tok.type === 'space' && tok.text.includes('\n')) {
+        // Count newlines
+        const newlines = (tok.text.match(/\n/g) || []).length;
+        if (newlines >= 2) {
+          // Paragraph break
+          paragraphs.push(current);
+          current = '';
+          return;
+        }
+        current += ' ';
+      } else if (tok.type === 'space') {
+        current += ' ';
+      } else if (masked.has(i)) {
+        const correct = tok.text;
+        const ans = answers[i] || '';
+        const charWidth = Math.max(correct.length, 3);
+        let cls = 'blank';
+        let extra = '';
+        let isSubmitted = !!results;
+        if (isSubmitted) {
+          const r = results[blankIdx];
+          cls += ' ' + r.level;
+          if (r.level === 'wrong') {
+            extra = `<span class="correction">${escapeHTML(correct)}</span>`;
+          } else if (r.level === 'partial') {
+            extra = `<span class="correction">${escapeHTML(correct)}</span>`;
+          }
+        }
+        current += `<input type="text" class="${cls}"
+                     data-bi="${i}"
+                     data-correct="${escapeAttr(correct)}"
+                     value="${escapeAttr(ans)}"
+                     ${isSubmitted ? 'readonly' : ''}
+                     style="width: ${charWidth * 0.75 + 1.2}em; min-width: ${charWidth * 0.75 + 1.2}em"
+                     autocapitalize="off" autocomplete="off"
+                     autocorrect="off" spellcheck="false"
+                     enterkeyhint="next">${extra}`;
+        blankIdx++;
+      } else {
+        current += escapeHTML(tok.text);
+      }
+    });
+    if (current) paragraphs.push(current);
+
+    return paragraphs.map(p => `<p>${p}</p>`).join('');
+  }
+
+  function renderResults() {
+    const { essayId, results, progressUpdate } = route;
+    const essay = state.essays.find(e => e.id === essayId);
+    if (!essay) { navigate('home'); return ''; }
+
+    const total = results.length;
+    const correctCount = results.filter(r => r.level === 'correct').length;
+    const partialCount = results.filter(r => r.level === 'partial').length;
+    const wrongCount = results.filter(r => r.level === 'wrong').length;
+    const totalScore = results.reduce((s, r) => s + r.score, 0);
+    const percent = Math.round((totalScore / total) * 100);
+
+    let label;
+    if (percent >= 95) label = 'Outstanding.';
+    else if (percent >= 85) label = 'Excellent work.';
+    else if (percent >= 70) label = 'Well done.';
+    else if (percent >= 50) label = 'Keep going.';
+    else label = 'Review & retry.';
+
+    let levelText, levelClass;
+    if (progressUpdate.levelDelta > 0) {
+      levelText = `${progressUpdate.oldLevel} → ${progressUpdate.newLevel} ↑`;
+      levelClass = 'level-change';
+    } else if (progressUpdate.levelDelta < 0) {
+      levelText = `${progressUpdate.oldLevel} → ${progressUpdate.newLevel} ↓`;
+      levelClass = 'level-change down';
+    } else {
+      levelText = `${progressUpdate.oldLevel}`;
+      levelClass = 'level-change same';
+    }
+
+    const reviewDate = new Date(progressUpdate.nextReview);
+    const reviewDays = progressUpdate.interval;
+    const reviewText = reviewDays === 1 ? '내일' : `${reviewDays}일 후`;
+
+    return `
+      <div class="view">
+        <div class="header">
+          <button class="icon-btn" data-back-home>
+            <svg viewBox="0 0 24 24"><path d="M3 12l9-9 9 9M5 10v11h14V10"/></svg>
+          </button>
+          <div class="header-title">결과</div>
+          <div style="width: 36px"></div>
+        </div>
+        <div class="scroll">
+          <div class="results-wrap">
+            <div class="score-big">${percent}<span class="score-percent">%</span></div>
+            <div class="score-label">${label}</div>
+            <div class="score-bar">
+              <div class="score-chip correct">
+                <div class="score-chip-num">${correctCount}</div>
+                <div class="score-chip-label">정답</div>
+              </div>
+              <div class="score-chip partial">
+                <div class="score-chip-num">${partialCount}</div>
+                <div class="score-chip-label">유사</div>
+              </div>
+              <div class="score-chip wrong">
+                <div class="score-chip-num">${wrongCount}</div>
+                <div class="score-chip-label">오답</div>
+              </div>
+            </div>
+          </div>
+          <div class="progress-panel">
+            <div class="progress-row">
+              <span class="pr-label">레벨</span>
+              <span class="pr-value ${levelClass}">${levelText}</span>
+            </div>
+            <div class="progress-row">
+              <span class="pr-label">다음 복습</span>
+              <span class="pr-value">${reviewText}</span>
+            </div>
+            <div class="progress-row">
+              <span class="pr-label">다음 빈칸 비율</span>
+              <span class="pr-value">${Math.round(levelToBlankRatio(progressUpdate.newLevel) * 100)}%</span>
+            </div>
+          </div>
+          <div style="padding: 24px; padding-bottom: 140px;">
+            <button class="btn btn-secondary" style="width: 100%" data-review="${essayId}">틀린 곳 다시 보기</button>
+          </div>
+        </div>
+        <div class="bottom-bar">
+          <button class="btn btn-primary" data-back-home>홈으로</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // =============================================================
+  // ESCAPING
+  // =============================================================
+  function escapeHTML(s) {
+    return (s || '').replace(/[&<>"']/g, c => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[c]));
+  }
+  function escapeAttr(s) {
+    return escapeHTML(s);
+  }
+
+  // =============================================================
+  // RENDER LOOP
+  // =============================================================
+  function render() {
+    let html = '';
+    switch (route.name) {
+      case 'home':       html = renderHome(); break;
+      case 'add':        html = renderAddEssay(null); break;
+      case 'edit':       html = renderAddEssay(state.essays.find(e => e.id === route.essayId)); break;
+      case 'practice':   html = renderPractice(); break;
+      case 'results':    html = renderResults(); break;
+      default:           html = renderHome();
+    }
+    app.innerHTML = html;
+    attachHandlers();
+  }
+
+  // =============================================================
+  // EVENT HANDLERS
+  // =============================================================
+  function attachHandlers() {
+    // Back buttons
+    app.querySelectorAll('[data-back]').forEach(el => {
+      el.onclick = () => {
+        if (route.name === 'practice' && session && !session.submitted && Object.keys(session.answers).length > 0) {
+          showModal({
+            title: '나갈까요?',
+            body: '진행 중인 답안이 사라집니다.',
+            confirmText: '나가기',
+            confirmStyle: 'btn-danger',
+            onConfirm: () => { session = null; navigate('home'); }
+          });
+        } else {
+          session = null;
+          navigate('home');
+        }
+      };
+    });
+    app.querySelectorAll('[data-back-home]').forEach(el => {
+      el.onclick = () => { session = null; navigate('home'); };
+    });
+
+    // Home: FAB & essay cards
+    app.querySelectorAll('[data-action="new"]').forEach(el => {
+      el.onclick = () => navigate('add');
+    });
+    app.querySelectorAll('.essay-card').forEach(el => {
+      el.onclick = () => {
+        const id = el.dataset.id;
+        // Long press → edit; tap → practice
+        // Simple: tap practice, swipe/long is v2
+        navigate('practice', { essayId: id });
+      };
+      // Long press for edit
+      let pressTimer;
+      el.addEventListener('touchstart', (e) => {
+        pressTimer = setTimeout(() => {
+          navigator.vibrate && navigator.vibrate(20);
+          navigate('edit', { essayId: el.dataset.id });
+        }, 600);
+      });
+      el.addEventListener('touchend', () => clearTimeout(pressTimer));
+      el.addEventListener('touchmove', () => clearTimeout(pressTimer));
+    });
+
+    // Add/Edit form
+    app.querySelectorAll('.type-opt').forEach(el => {
+      el.onclick = () => {
+        el.parentElement.querySelectorAll('.type-opt').forEach(x => x.classList.remove('active'));
+        el.classList.add('active');
+      };
+    });
+    app.querySelectorAll('[data-save]').forEach(el => {
+      el.onclick = () => {
+        const title = app.querySelector('#f-title').value.trim();
+        const body = app.querySelector('#f-body').value.trim();
+        const typeEl = app.querySelector('.type-opt.active');
+        const type = typeEl ? typeEl.dataset.type : 'opinion';
+        if (!title) { toast('제목을 입력하세요'); return; }
+        if (!body || body.length < 50) { toast('본문이 너무 짧아요'); return; }
+
+        const editId = el.dataset.save;
+        if (editId) {
+          const e = state.essays.find(x => x.id === editId);
+          if (e) { e.title = title; e.text = body; e.type = type; }
+        } else {
+          const id = 'e-' + Date.now();
+          state.essays.push({ id, title, text: body, type, created: Date.now() });
+          state.progress[id] = newProgress();
+        }
+        saveState();
+        toast(editId ? '저장되었습니다' : '에세이가 추가되었습니다');
+        navigate('home');
+      };
+    });
+    app.querySelectorAll('[data-delete]').forEach(el => {
+      el.onclick = () => {
+        showModal({
+          title: '삭제할까요?',
+          body: '에세이와 학습 기록이 모두 삭제됩니다.',
+          confirmText: '삭제',
+          confirmStyle: 'btn-danger',
+          onConfirm: () => {
+            const id = el.dataset.delete;
+            state.essays = state.essays.filter(e => e.id !== id);
+            delete state.progress[id];
+            saveState();
+            toast('삭제되었습니다');
+            navigate('home');
+          }
+        });
+      };
+    });
+
+    // Practice: blank inputs
+    app.querySelectorAll('.blank').forEach(inp => {
+      const bi = inp.dataset.bi;
+      inp.addEventListener('input', (e) => {
+        if (session) session.answers[bi] = e.target.value;
+      });
+      inp.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const all = Array.from(app.querySelectorAll('.blank'));
+          const idx = all.indexOf(inp);
+          if (idx < all.length - 1) {
+            all[idx + 1].focus();
+          } else {
+            inp.blur();
+          }
+        }
+      });
+    });
+
+    // Submit
+    app.querySelectorAll('[data-submit]').forEach(el => {
+      el.onclick = () => {
+        if (!session) return;
+        const filledCount = Object.values(session.answers).filter(v => v && v.trim()).length;
+        const totalBlanks = session.masked.size;
+        if (filledCount < totalBlanks) {
+          showModal({
+            title: '다 채우지 않았어요',
+            body: `${totalBlanks - filledCount}개의 빈칸이 비어있습니다. 그래도 채점할까요?`,
+            confirmText: '채점하기',
+            onConfirm: () => doSubmit()
+          });
+        } else {
+          doSubmit();
+        }
+      };
+    });
+    app.querySelectorAll('[data-retry]').forEach(el => {
+      el.onclick = () => {
+        session = null;
+        navigate('practice', { essayId: route.essayId });
+      };
+    });
+    app.querySelectorAll('[data-finish]').forEach(el => {
+      el.onclick = () => {
+        // Show results view
+        const results = [];
+        Array.from(session.masked).sort((a, b) => a - b).forEach(i => {
+          const correct = session.tokens[i].text;
+          const user = session.answers[i] || '';
+          results.push(scoreBlank(user, correct));
+        });
+        const totalScore = results.reduce((s, r) => s + r.score, 0);
+        const avg = totalScore / results.length;
+        const update = updateProgress(session.essayId, avg);
+        navigate('results', { essayId: session.essayId, results, progressUpdate: update });
+      };
+    });
+    app.querySelectorAll('[data-review]').forEach(el => {
+      el.onclick = () => {
+        // Go back to submitted practice view
+        navigate('practice', { essayId: el.dataset.review });
+      };
+    });
+  }
+
+  function doSubmit() {
+    if (!session) return;
+    const indices = Array.from(session.masked).sort((a, b) => a - b);
+    const results = indices.map(i => {
+      const correct = session.tokens[i].text;
+      const user = session.answers[i] || '';
+      return scoreBlank(user, correct);
+    });
+    session.results = results;
+    session.submitted = true;
+    render();
+    // Smooth scroll to top
+    requestAnimationFrame(() => {
+      const s = app.querySelector('.scroll');
+      if (s) s.scrollTop = 0;
+    });
+  }
+
+  // =============================================================
+  // SERVICE WORKER
+  // =============================================================
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js').catch(() => {});
+    });
+  }
+
+  // =============================================================
+  // INIT
+  // =============================================================
+  render();
+  </script>
+</body>
+</html>
